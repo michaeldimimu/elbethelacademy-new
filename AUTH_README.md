@@ -30,6 +30,7 @@ You can use these test accounts to sign in:
 
 - Node.js (version 16 or higher)
 - npm
+- MongoDB (see MONGODB_SETUP.md for installation instructions)
 
 ### Installation
 
@@ -39,7 +40,18 @@ You can use these test accounts to sign in:
 npm install
 ```
 
-2. Start the development servers:
+2. Set up MongoDB:
+
+   - Follow the instructions in `MONGODB_SETUP.md` to install and configure MongoDB
+   - MongoDB can be installed locally or use MongoDB Atlas (cloud)
+
+3. Seed the database with demo users:
+
+```bash
+npm run seed
+```
+
+4. Start the development servers:
 
 ```bash
 npm run dev:full
@@ -70,35 +82,48 @@ src/
 │   ├── auth/
 │   │   └── SignIn.tsx          # Sign-in form component
 │   └── Dashboard.tsx           # Protected dashboard
-├── routes/
-│   └── auth.route.ts          # Express auth routes
+├── config/
+│   └── database.ts            # MongoDB connection setup
+├── models/
+│   └── User.ts                # User database model/schema
 ├── services/
 │   └── authService.ts         # Frontend auth service
 ├── App.tsx                    # Main app with routing
 └── main.tsx                   # App entry point
+scripts/
+└── seed.ts                    # Database seeding script
+server.ts                      # Express server with MongoDB
 ```
 
 ## How Authentication Works
 
-1. **Backend (`auth.route.ts`):**
+1. **Database (`User.ts` model):**
 
-   - Uses @auth/express with Credentials provider
-   - Validates username/password against mock user database
-   - Creates secure sessions
+   - MongoDB collection with Mongoose schema
+   - Password hashing with bcrypt (salt rounds: 12)
+   - Unique username and email validation
+   - Automatic timestamps (createdAt, updatedAt)
 
-2. **Frontend (`SignIn.tsx`):**
+2. **Backend (`server.ts`):**
+
+   - MongoDB integration with Mongoose
+   - User registration and authentication endpoints
+   - Secure password comparison using bcrypt
+   - Session-based authentication with express-session
+
+3. **Frontend (`SignIn.tsx`):**
 
    - React form with username/password inputs
    - Calls auth service to authenticate
    - Redirects to dashboard on success
 
-3. **Auth Service (`authService.ts`):**
+4. **Auth Service (`authService.ts`):**
 
    - Handles API calls to auth endpoints
    - Manages session state
    - Provides auth utilities
 
-4. **Protected Routes:**
+5. **Protected Routes:**
    - Dashboard checks for valid session
    - Redirects to sign-in if not authenticated
 
@@ -109,6 +134,7 @@ The application uses these environment variables (configured in `.env`):
 - `AUTH_SECRET`: Secret key for signing tokens
 - `PORT`: Backend server port (default: 3001)
 - `NODE_ENV`: Environment mode
+- `MONGODB_URI`: MongoDB connection string
 
 ## Production Deployment
 
