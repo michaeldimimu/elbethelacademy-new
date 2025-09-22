@@ -5,6 +5,13 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import Database from "./src/config/database.js";
 import User, { IUser } from "./src/models/User.js";
+import {
+  requireAuth,
+  requirePermission,
+  requireAdmin,
+  requireSuperAdmin,
+} from "./src/middleware/auth.js";
+import { Permission } from "./src/types/roles.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -72,6 +79,8 @@ app.post("/auth/signin/credentials", async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      role: user.role,
+      isActive: user.isActive,
     };
 
     console.log("User logged in and session stored:", req.session.user);
@@ -142,6 +151,8 @@ app.post("/auth/register", async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      role: user.role,
+      isActive: user.isActive,
     };
 
     res.status(201).json({
@@ -159,6 +170,121 @@ app.post("/auth/register", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Protected API routes demonstrating RBAC
+app.get("/api/profile", requireAuth, (req, res) => {
+  res.json({
+    user: req.session.user,
+    message: "This is your profile data",
+  });
+});
+
+app.get("/api/admin/users", requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    res.json({
+      users,
+      message: "Admin access: All users list",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+app.get(
+  "/api/admin/dashboard",
+  requirePermission(Permission.CREATE_USER),
+  (req, res) => {
+    res.json({
+      message: "Admin dashboard data",
+      stats: {
+        totalUsers: "This would be a real count",
+        activeUsers: "This would be active user count",
+        permissions: "This would show user permissions",
+      },
+    });
+  }
+);
+
+app.post(
+  "/api/admin/users/:id/activate",
+  requireSuperAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await User.findByIdAndUpdate(
+        id,
+        { isActive: true },
+        { new: true, select: "-password" }
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({
+        message: "User activated successfully",
+        user,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to activate user" });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/users/:id/deactivate",
+  requireSuperAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await User.findByIdAndUpdate(
+        id,
+        { isActive: false },
+        { new: true, select: "-password" }
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({
+        message: "User deactivated successfully",
+        user,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to deactivate user" });
+    }
+  }
+);
+
+app.get(
+  "/api/teacher/courses",
+  requirePermission(Permission.CREATE_COURSE),
+  (req, res) => {
+    res.json({
+      message: "Teacher access: Course management",
+      courses: [
+        { id: 1, name: "Sample Course 1", students: 25 },
+        { id: 2, name: "Sample Course 2", students: 18 },
+      ],
+    });
+  }
+);
+
+app.get(
+  "/api/student/courses",
+  requirePermission(Permission.READ_COURSE),
+  (req, res) => {
+    res.json({
+      message: "Student access: Enrolled courses",
+      courses: [
+        { id: 1, name: "Mathematics 101", progress: 75 },
+        { id: 2, name: "Science Basics", progress: 60 },
+      ],
+    });
+  }
+);
 
 // Serve static files from the dist directory (for production)
 if (process.env.NODE_ENV === "production") {
@@ -190,6 +316,8 @@ declare module "express-session" {
       name: string;
       email: string;
       username: string;
+      role: string;
+      isActive: boolean;
     };
   }
 }

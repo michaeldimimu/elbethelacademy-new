@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { UserRole } from "../types/roles.js";
 
 // User interface for TypeScript
 export interface IUser extends mongoose.Document {
@@ -7,6 +8,8 @@ export interface IUser extends mongoose.Document {
   email: string;
   password: string;
   name: string;
+  role: UserRole;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -44,6 +47,16 @@ const userSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       trim: true,
       maxlength: [50, "Name cannot exceed 50 characters"],
+    },
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.STUDENT,
+      required: [true, "Role is required"],
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {

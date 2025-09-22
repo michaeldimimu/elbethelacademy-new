@@ -1,40 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../../services/authService";
-import type { SignInCredentials } from "../../services/authService";
+import { useAuth } from "../../contexts/AuthContext";
 
-interface SignInProps {
-  onSignIn?: (credentials: SignInCredentials) => void;
-}
-
-export default function SignIn({ onSignIn }: SignInProps) {
+export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { signIn, user } = useAuth();
+
+  useEffect(() => {
+    // Redirect if already signed in
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    const credentials: SignInCredentials = { username, password };
-
     try {
-      if (onSignIn) {
-        await onSignIn(credentials);
-      } else {
-        // Use the auth service
-        const result = await authService.signIn(credentials);
+      const result = await signIn({ username, password });
 
-        if (result.user) {
-          // Redirect to dashboard on successful login
-          navigate("/dashboard");
-        } else {
-          setError(result.error || "Invalid username or password");
-        }
+      if (result.success) {
+        navigate("/dashboard");
+      } else {
+        setError(result.error || "Invalid username or password");
       }
     } catch (err) {
       console.error("Sign in error:", err);
@@ -137,15 +132,17 @@ export default function SignIn({ onSignIn }: SignInProps) {
             <div className="text-sm text-gray-600">
               Demo credentials:
               <br />
-              Username: <code className="bg-gray-100 px-1 rounded">
-                admin
-              </code>{" "}
-              | Password:{" "}
-              <code className="bg-gray-100 px-1 rounded">password123</code>
+              <strong>Admin:</strong>{" "}
+              <code className="bg-gray-100 px-1 rounded">admin</code> |{" "}
+              <code className="bg-gray-100 px-1 rounded">admin123</code>
               <br />
-              Username: <code className="bg-gray-100 px-1 rounded">user</code> |
-              Password:{" "}
-              <code className="bg-gray-100 px-1 rounded">user123</code>
+              <strong>Teacher:</strong>{" "}
+              <code className="bg-gray-100 px-1 rounded">teacher</code> |{" "}
+              <code className="bg-gray-100 px-1 rounded">teacher123</code>
+              <br />
+              <strong>Student:</strong>{" "}
+              <code className="bg-gray-100 px-1 rounded">student</code> |{" "}
+              <code className="bg-gray-100 px-1 rounded">student123</code>
             </div>
           </div>
         </form>

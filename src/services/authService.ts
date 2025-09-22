@@ -1,8 +1,12 @@
+import { UserRole } from "../types/roles";
+
 interface User {
   id: string;
   name: string;
   email: string;
   username: string;
+  role: UserRole;
+  isActive: boolean;
 }
 
 interface AuthResponse {
