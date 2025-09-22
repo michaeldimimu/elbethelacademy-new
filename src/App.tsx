@@ -1,8 +1,16 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import SignIn from "./components/auth/SignIn";
+import Dashboard from "./components/Dashboard";
+
 function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold">App page</h1>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/signin" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
