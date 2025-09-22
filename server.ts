@@ -60,7 +60,7 @@ app.post("/auth/signin/credentials", async (req, res) => {
     }
 
     // Find user in database
-    const user = await User.findOne({ username });
+    const user = (await User.findOne({ username })) as IUser | null;
 
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -75,7 +75,7 @@ app.post("/auth/signin/credentials", async (req, res) => {
 
     // Store user in session
     req.session.user = {
-      id: user._id.toString(),
+      id: (user._id as any).toString(),
       name: user.name,
       email: user.email,
       username: user.username,
@@ -147,7 +147,7 @@ app.post("/auth/register", async (req, res) => {
 
     // Store user in session
     req.session.user = {
-      id: user._id.toString(),
+      id: (user._id as any).toString(),
       name: user.name,
       email: user.email,
       username: user.username,
@@ -159,11 +159,11 @@ app.post("/auth/register", async (req, res) => {
       user: req.session.user,
       message: "User created successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error:", error);
 
     if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map((err) => err.message);
+      const errors = Object.values(error.errors).map((err: any) => err.message);
       return res.status(400).json({ error: errors.join(", ") });
     }
 
