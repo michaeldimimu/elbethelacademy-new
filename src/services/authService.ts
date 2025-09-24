@@ -19,8 +19,24 @@ interface SignInCredentials {
   password: string;
 }
 
+interface ForgotPasswordRequest {
+  email: string;
+}
+
+interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+interface PasswordResetResponse {
+  success?: boolean;
+  message?: string;
+  error?: string;
+}
+
 class AuthService {
   private baseUrl = "/auth";
+  private passwordResetUrl = "/api/auth";
 
   async signIn(credentials: SignInCredentials): Promise<AuthResponse> {
     try {
@@ -77,7 +93,72 @@ class AuthService {
     const user = await this.getSession();
     return !!user;
   }
+
+  async requestPasswordReset(email: string): Promise<PasswordResetResponse> {
+    try {
+      const response = await fetch(`${this.passwordResetUrl}/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, message: data.message };
+      } else {
+        return { error: data.message || "Failed to send reset email" };
+      }
+    } catch (error) {
+      console.error("AuthService: Password reset request error", error);
+      return { error: "Network error occurred" };
+    }
+  }
+
+  async verifyResetToken(token: string): Promise<PasswordResetResponse> {
+    try {
+      const response = await fetch(`${this.passwordResetUrl}/verify-reset-token/${encodeURIComponent(token)}`, {
+        method: "GET",
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, message: data.message };
+      } else {
+        return { error: data.message || "Invalid or expired reset token" };
+      }
+    } catch (error) {
+      console.error("AuthService: Token verification error", error);
+      return { error: "Network error occurred" };
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<PasswordResetResponse> {
+    try {
+      const response = await fetch(`${this.passwordResetUrl}/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, password: newPassword }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, message: data.message };
+      } else {
+        return { error: data.message || "Failed to reset password" };
+      }
+    } catch (error) {
+      console.error("AuthService: Password reset error", error);
+      return { error: "Network error occurred" };
+    }
+  }
 }
 
 export const authService = new AuthService();
-export type { User, SignInCredentials, AuthResponse };
+export type { User, SignInCredentials, AuthResponse, ForgotPasswordRequest, ResetPasswordRequest, PasswordResetResponse };

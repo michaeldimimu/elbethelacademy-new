@@ -13,6 +13,22 @@ export interface InvitationEmailData {
   organizationName?: string;
 }
 
+export interface WelcomeEmailData {
+  name: string;
+  email: string;
+  role: UserRole;
+  username: string;
+}
+
+export interface PasswordResetEmailData {
+  name: string;
+  email: string;
+  resetLink: string;
+  expiresAt: Date;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
 export class EmailTemplates {
   private static organizationName = "ElBethel Academy";
   private static primaryColor = "#4f46e5";
@@ -308,12 +324,7 @@ If you need assistance, please contact our support team.
 `;
   }
 
-  static getWelcomeEmailHTML(userData: {
-    name: string;
-    email: string;
-    role: UserRole;
-    username: string;
-  }): string {
+  static getWelcomeEmailHTML(userData: WelcomeEmailData): string {
     const roleName = this.formatRoleName(userData.role);
 
     return `
@@ -437,11 +448,257 @@ If you need assistance, please contact our support team.
         
         <div class="footer">
             <p><strong>${this.organizationName}</strong></p>
-            <p>This is an automated message. Please do not reply to this email.</p>
         </div>
     </div>
 </body>
 </html>`;
+  }
+
+  static getPasswordResetEmailHTML(data: PasswordResetEmailData): string {
+    const expiryDate = data.expiresAt.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const expiryTime = data.expiresAt.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password - ${this.organizationName}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+        .reset-details {
+            background-color: #fef3c7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #fee2e2;
+            border-radius: 8px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #dc2626;
+            color: white;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #b91c1c;
+        }
+        .expiry-warning {
+            background-color: #fecaca;
+            border: 1px solid #f87171;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .security-note {
+            background-color: #e0f2fe;
+            border: 1px solid #81d4fa;
+            color: #0277bd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .header, .content, .footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Password Reset</h1>
+            <p>Reset your ${this.organizationName} account password</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello ${data.name},
+            </div>
+            
+            <p>We received a request to reset the password for your ${this.organizationName} account (${data.email}).</p>
+            
+            <div class="reset-details">
+                <p><strong>⚠️ Password Reset Requested</strong></p>
+                <p>If you made this request, click the button below to reset your password. If you didn't request a password reset, you can ignore this email - your password will remain unchanged.</p>
+                ${data.ipAddress ? `<p style="font-size: 12px; color: #6b7280; margin-top: 10px;">Request made from IP: ${data.ipAddress}</p>` : ''}
+            </div>
+            
+            <div class="cta-section">
+                <p style="margin: 0 0 15px 0; font-size: 16px; color: #374151;">
+                    <strong>Ready to reset your password?</strong><br>
+                    Click the button below to create a new password for your account.
+                </p>
+                <a href="${data.resetLink}" class="cta-button">Reset My Password</a>
+            </div>
+            
+            <div class="expiry-warning">
+                ⏰ This reset link expires on ${expiryDate} at ${expiryTime}
+            </div>
+            
+            <div class="security-note">
+                <strong>🔒 Security Tips:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>This reset link can only be used once</li>
+                    <li>Choose a strong, unique password</li>
+                    <li>Never share your password with anyone</li>
+                    <li>If you suspect unauthorized access, contact support immediately</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 30px;">
+                If you're unable to click the button above, you can copy and paste this link into your browser:
+            </p>
+            <p style="word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 14px;">
+                ${data.resetLink}
+            </p>
+            
+            <p style="margin-top: 20px; font-size: 14px; color: #6b7280;">
+                <strong>Didn't request this?</strong> If you didn't request a password reset, you can safely ignore this email. 
+                Your password will not be changed unless you click the reset link above.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>${this.organizationName} Security Team</strong></p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>If you need assistance, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  static getPasswordResetEmailText(data: PasswordResetEmailData): string {
+    const expiryDate = data.expiresAt.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const expiryTime = data.expiresAt.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+
+    return `
+PASSWORD RESET REQUEST - ${this.organizationName.toUpperCase()}
+
+Hello ${data.name},
+
+We received a request to reset the password for your ${this.organizationName} account (${data.email}).
+
+RESET YOUR PASSWORD:
+If you made this request, please visit the following link to reset your password:
+${data.resetLink}
+
+IMPORTANT INFORMATION:
+- This reset link expires on ${expiryDate} at ${expiryTime}
+- This link can only be used once
+- If you didn't request this reset, you can safely ignore this email
+${data.ipAddress ? `- Request made from IP: ${data.ipAddress}` : ''}
+
+SECURITY TIPS:
+- Choose a strong, unique password
+- Never share your password with anyone
+- If you suspect unauthorized access, contact support immediately
+
+If you're unable to use the link above, please copy and paste it into your browser.
+
+DIDN'T REQUEST THIS?
+If you didn't request a password reset, you can safely ignore this email. 
+Your password will not be changed unless you use the reset link above.
+
+---
+${this.organizationName} Security Team
+This is an automated message. Please do not reply to this email.
+If you need assistance, please contact our support team.
+`;
   }
 
   private static formatRoleName(role: UserRole): string {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function SignIn() {
@@ -126,6 +126,15 @@ export default function SignIn() {
                 "Sign in"
               )}
             </button>
+          </div>
+
+          <div className="text-center">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+            >
+              Forgot your password?
+            </Link>
           </div>
 
           <div className="text-center">

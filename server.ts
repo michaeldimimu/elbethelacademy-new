@@ -14,6 +14,7 @@ import {
 } from "./src/middleware/auth.js";
 import { Permission } from "./src/types/roles.js";
 import invitationRoutes from "./src/routes/invitation.route.js";
+import passwordResetRoutes from "./src/routes/password-reset.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -58,6 +59,7 @@ if (emailService.isEmailEnabled()) {
 
 // API routes
 app.use("/api/invitations", invitationRoutes);
+app.use("/api/auth", passwordResetRoutes);
 
 // Auth routes with MongoDB
 app.post("/auth/signin/credentials", async (req, res) => {

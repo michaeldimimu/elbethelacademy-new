@@ -1,19 +1,12 @@
 import EmailConfiguration from "../config/email.js";
 import { EmailTemplates } from "../templates/emailTemplates.js";
-import type { InvitationEmailData } from "../templates/emailTemplates.js";
+import type { InvitationEmailData, WelcomeEmailData, PasswordResetEmailData } from "../templates/emailTemplates.js";
 import { UserRole } from "../types/roles.js";
 
 export interface EmailSendResult {
   success: boolean;
   messageId?: string;
   error?: string;
-}
-
-export interface WelcomeEmailData {
-  name: string;
-  email: string;
-  role: UserRole;
-  username: string;
 }
 
 class EmailService {
@@ -139,6 +132,59 @@ class EmailService {
       };
     } catch (error: any) {
       console.error(`❌ Failed to send welcome email to ${data.email}:`, error);
+
+      return {
+        success: false,
+        error: error.message || "Failed to send email",
+      };
+    }
+  }
+
+  public async sendPasswordResetEmail(
+    data: PasswordResetEmailData
+  ): Promise<EmailSendResult> {
+    if (!this.isEmailEnabled()) {
+      console.log("⚠️ Email not configured - password reset email not sent");
+      return {
+        success: false,
+        error: "Email service not configured",
+      };
+    }
+
+    const transporter = this.emailConfig.getTransporter();
+    if (!transporter) {
+      return {
+        success: false,
+        error: "Email transporter not available",
+      };
+    }
+
+    try {
+      const fromAddress = this.emailConfig.getFromAddress();
+      const fromName = this.emailConfig.getFromName();
+
+      const mailOptions = {
+        from: `"${fromName} Security" <${fromAddress}>`,
+        to: data.email,
+        subject: `🔐 Password Reset Request - ${fromName}`,
+        html: EmailTemplates.getPasswordResetEmailHTML(data),
+        text: EmailTemplates.getPasswordResetEmailText(data),
+      };
+
+      console.log(`📧 Sending password reset email to ${data.email}...`);
+
+      const result = await transporter.sendMail(mailOptions);
+
+      console.log(`✅ Password reset email sent successfully to ${data.email}`, {
+        messageId: result.messageId,
+      });
+
+      return {
+        success: true,
+        messageId: result.messageId,
+      };
+    } catch (error: any) {
+      console.error(`❌ Failed to send password reset email to ${data.email}:`, error);
 
       return {
         success: false,
