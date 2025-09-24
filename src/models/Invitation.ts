@@ -43,7 +43,6 @@ const invitationSchema = new mongoose.Schema(
     },
     token: {
       type: String,
-      required: true,
       unique: true,
       index: true,
     },
@@ -98,8 +97,9 @@ invitationSchema.index(
 
 // Generate secure random token before saving
 invitationSchema.pre("save", function (next) {
-  if (this.isNew && !this.token) {
-    this.token = this.generateToken();
+  // Always generate token if it doesn't exist
+  if (!this.token) {
+    this.token = crypto.randomBytes(32).toString("hex");
   }
   next();
 });

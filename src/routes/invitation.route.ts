@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+import crypto from "crypto";
 import Invitation, { IInvitation } from "../models/Invitation.js";
 import User, { IUser } from "../models/User.js";
 import {
@@ -102,6 +103,7 @@ router.post(
       const invitation = new Invitation({
         email: email.toLowerCase(),
         role,
+        token: crypto.randomBytes(32).toString("hex"), // Generate token explicitly
         invitedBy: currentUser.id,
         invitedByDetails: {
           name: currentUser.name,
