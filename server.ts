@@ -4,6 +4,7 @@ import session from "express-session";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import Database from "./src/config/database.js";
+import EmailService from "./src/services/emailService.js";
 import User, { IUser } from "./src/models/User.js";
 import {
   requireAuth,
@@ -48,6 +49,12 @@ database.connect().catch((error) => {
   );
   // Don't exit the process, let the server run for frontend development
 });
+
+// Initialize email service
+const emailService = EmailService.getInstance();
+if (emailService.isEmailEnabled()) {
+  emailService.verifyEmailConfiguration();
+}
 
 // API routes
 app.use("/api/invitations", invitationRoutes);

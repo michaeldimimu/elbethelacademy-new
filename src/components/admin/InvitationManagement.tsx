@@ -26,6 +26,15 @@ const InvitationManagement: React.FC = () => {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [invitableRoles, setInvitableRoles] = useState<UserRole[]>([]);
+  const [emailStatus, setEmailStatus] = useState<{
+    enabled: boolean;
+    configured: boolean;
+    fromAddress: string;
+    fromName: string;
+  } | null>(null);
+  const [showTestEmailForm, setShowTestEmailForm] = useState(false);
+  const [testEmail, setTestEmail] = useState("");
+  const [testEmailLoading, setTestEmailLoading] = useState(false);
 
   // Load invitations and stats
   const loadData = async () => {
@@ -33,13 +42,15 @@ const InvitationManagement: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const [invitationsData, statsData] = await Promise.all([
+      const [invitationsData, statsData, emailStatusData] = await Promise.all([
         invitationService.getInvitations(),
         invitationService.getStats(),
+        loadEmailStatus(),
       ]);
 
       setInvitations(invitationsData.invitations);
       setStats(statsData);
+      setEmailStatus(emailStatusData);
     } catch (err: any) {
       setError(err.message || "Failed to load data");
     } finally {
@@ -63,6 +74,53 @@ const InvitationManagement: React.FC = () => {
       ]);
     } else {
       setInvitableRoles([]);
+    }
+  };
+
+  // Load email status
+  const loadEmailStatus = async () => {
+    try {
+      const response = await fetch("/api/invitations/email-status", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      return response.ok ? data : null;
+    } catch (err) {
+      console.error("Failed to load email status:", err);
+      return null;
+    }
+  };
+
+  // Send test email
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTestEmailLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch("/api/invitations/test-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email: testEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(`Test email sent successfully to ${testEmail}`);
+        setTestEmail("");
+        setShowTestEmailForm(false);
+      } else {
+        setError(data.error || "Failed to send test email");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to send test email");
+    } finally {
+      setTestEmailLoading(false);
     }
   };
 
@@ -132,12 +190,22 @@ const InvitationManagement: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">User Invitations</h2>
-        <button
-          onClick={() => setShowInviteForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Invite New User
-        </button>
+        <div className="flex gap-3">
+          {emailStatus && emailStatus.enabled && (
+            <button
+              onClick={() => setShowTestEmailForm(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Test Email
+            </button>
+          )}
+          <button
+            onClick={() => setShowInviteForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Invite New User
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -149,6 +217,50 @@ const InvitationManagement: React.FC = () => {
       {successMessage && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
           <p className="text-green-800">{successMessage}</p>
+        </div>
+      )}
+
+      {/* Email Status */}
+      {emailStatus && (
+        <div
+          className={`p-4 rounded-lg mb-6 ${
+            emailStatus.enabled
+              ? "bg-green-50 border border-green-200"
+              : "bg-yellow-50 border border-yellow-200"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3
+                className={`font-medium ${
+                  emailStatus.enabled ? "text-green-800" : "text-yellow-800"
+                }`}
+              >
+                📧 Email Service Status
+              </h3>
+              <p
+                className={`text-sm ${
+                  emailStatus.enabled ? "text-green-700" : "text-yellow-700"
+                }`}
+              >
+                {emailStatus.enabled
+                  ? `✅ Configured and ready (${emailStatus.fromName} <${emailStatus.fromAddress}>)`
+                  : "⚠️ Not configured - invitations will be created but emails won't be sent"}
+              </p>
+            </div>
+            {!emailStatus.enabled && (
+              <div className="text-sm text-yellow-700">
+                <a
+                  href="https://github.com/JUWON250604/elbethelacademy-new/blob/main/EMAIL_SETUP.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-yellow-800"
+                >
+                  Setup Guide
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -233,6 +345,53 @@ const InvitationManagement: React.FC = () => {
                   disabled={inviteLoading}
                 >
                   {inviteLoading ? "Sending..." : "Send Invitation"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Test Email Modal */}
+      {showTestEmailForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Send Test Email</h3>
+            <form onSubmit={handleSendTestEmail}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Test Email Address
+                </label>
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="test@example.com"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  A test email will be sent to verify email configuration
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTestEmailForm(false);
+                    setTestEmail("");
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={testEmailLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                  disabled={testEmailLoading}
+                >
+                  {testEmailLoading ? "Sending..." : "Send Test Email"}
                 </button>
               </div>
             </form>

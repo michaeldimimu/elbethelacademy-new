@@ -26,6 +26,15 @@ A modern, full-stack educational platform built with React, TypeScript, Express,
 - **Permission System**: Granular permission checking
 - **User Management**: Admin tools for user activation/deactivation
 - **Course Management**: Teaching and learning tools
+- **Email Integration**: Automated invitation and welcome emails
+
+### 📧 **Email System**
+
+- **Invitation Emails**: Automatically sent when creating invitations
+- **Welcome Emails**: Sent when users accept invitations
+- **Multiple Providers**: Support for Gmail, Outlook, and custom SMTP
+- **Professional Templates**: Responsive HTML email templates
+- **Testing Tools**: Admin interface for email configuration testing
 
 ## 🛠️ Tech Stack
 
@@ -81,6 +90,12 @@ SESSION_SECRET=your_session_secret_key
 # Server Configuration
 PORT=3001
 NODE_ENV=development
+
+# Email Configuration (Optional)
+EMAIL_SERVICE=gmail
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_FROM_NAME=ElBethel Academy
 ```
 
 ### **4. Database Setup**
@@ -116,6 +131,27 @@ npm run dev:full
 npm run dev          # Frontend only (port 5173)
 npm run dev:server:watch  # Backend only (port 3001)
 ```
+
+### **7. Email Setup (Optional)**
+
+The system can send invitation and welcome emails automatically. To enable this feature:
+
+1. **Choose an email provider** (Gmail recommended for testing)
+2. **Configure environment variables** in `.env`:
+
+```env
+EMAIL_SERVICE=gmail
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_FROM_NAME=ElBethel Academy
+```
+
+3. **For Gmail**: Enable 2FA and generate an app password
+4. **Test email setup** using the admin dashboard
+
+For detailed email setup instructions, see [EMAIL_SETUP.md](EMAIL_SETUP.md).
+
+**Note**: The system works perfectly without email configuration - invitations will still function, but you'll need to manually share invitation links.
 
 ## 🎮 Usage & Testing
 
