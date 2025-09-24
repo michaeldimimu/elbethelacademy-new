@@ -1,8 +1,8 @@
 import express from "express";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import crypto from "crypto";
-import Invitation, { IInvitation } from "../models/Invitation.js";
-import User, { IUser } from "../models/User.js";
+import Invitation from "../models/Invitation.js";
+import User from "../models/User.js";
 import {
   requireAuth,
   requirePermission,
@@ -123,9 +123,10 @@ router.post(
         expiresAt: invitation.expiresAt,
         createdAt: invitation.createdAt,
         // Include invitation link for frontend to display/copy
-        invitationLink: `${req.protocol}://${req.get("host")}/invite/${
-          invitation.token
-        }`,
+        // Use environment variable for frontend URL, fallback to development default
+        invitationLink: `${
+          process.env.FRONTEND_URL || "http://localhost:5173"
+        }/invite/${invitation.token}`,
       };
 
       res.status(201).json({
@@ -178,9 +179,9 @@ router.get(
         invitedBy: invitation.invitedByDetails,
         expiresAt: invitation.expiresAt,
         createdAt: invitation.createdAt,
-        invitationLink: `${req.protocol}://${req.get("host")}/invite/${
-          invitation.token
-        }`,
+        invitationLink: `${
+          process.env.FRONTEND_URL || "http://localhost:5173"
+        }/invite/${invitation.token}`,
       }));
 
       res.json({
