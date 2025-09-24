@@ -105,7 +105,7 @@ class AuthService {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         return { success: true, message: data.message };
       } else {
@@ -119,12 +119,17 @@ class AuthService {
 
   async verifyResetToken(token: string): Promise<PasswordResetResponse> {
     try {
-      const response = await fetch(`${this.passwordResetUrl}/verify-reset-token/${encodeURIComponent(token)}`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `${this.passwordResetUrl}/verify-reset-token/${encodeURIComponent(
+          token
+        )}`,
+        {
+          method: "GET",
+        }
+      );
 
       const data = await response.json();
-      
+
       if (response.ok) {
         return { success: true, message: data.message };
       } else {
@@ -136,7 +141,10 @@ class AuthService {
     }
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<PasswordResetResponse> {
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<PasswordResetResponse> {
     try {
       const response = await fetch(`${this.passwordResetUrl}/reset-password`, {
         method: "POST",
@@ -147,7 +155,7 @@ class AuthService {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         return { success: true, message: data.message };
       } else {
@@ -161,4 +169,11 @@ class AuthService {
 }
 
 export const authService = new AuthService();
-export type { User, SignInCredentials, AuthResponse, ForgotPasswordRequest, ResetPasswordRequest, PasswordResetResponse };
+export type {
+  User,
+  SignInCredentials,
+  AuthResponse,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  PasswordResetResponse,
+};

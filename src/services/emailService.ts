@@ -1,6 +1,10 @@
 import EmailConfiguration from "../config/email.js";
 import { EmailTemplates } from "../templates/emailTemplates.js";
-import type { InvitationEmailData, WelcomeEmailData, PasswordResetEmailData } from "../templates/emailTemplates.js";
+import type {
+  InvitationEmailData,
+  WelcomeEmailData,
+  PasswordResetEmailData,
+} from "../templates/emailTemplates.js";
 import { UserRole } from "../types/roles.js";
 
 export interface EmailSendResult {
@@ -175,16 +179,22 @@ class EmailService {
 
       const result = await transporter.sendMail(mailOptions);
 
-      console.log(`✅ Password reset email sent successfully to ${data.email}`, {
-        messageId: result.messageId,
-      });
+      console.log(
+        `✅ Password reset email sent successfully to ${data.email}`,
+        {
+          messageId: result.messageId,
+        }
+      );
 
       return {
         success: true,
         messageId: result.messageId,
       };
     } catch (error: any) {
-      console.error(`❌ Failed to send password reset email to ${data.email}:`, error);
+      console.error(
+        `❌ Failed to send password reset email to ${data.email}:`,
+        error
+      );
 
       return {
         success: false,

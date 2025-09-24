@@ -599,12 +599,18 @@ If you need assistance, please contact our support team.
                 Hello ${data.name},
             </div>
             
-            <p>We received a request to reset the password for your ${this.organizationName} account (${data.email}).</p>
+            <p>We received a request to reset the password for your ${
+              this.organizationName
+            } account (${data.email}).</p>
             
             <div class="reset-details">
                 <p><strong>⚠️ Password Reset Requested</strong></p>
                 <p>If you made this request, click the button below to reset your password. If you didn't request a password reset, you can ignore this email - your password will remain unchanged.</p>
-                ${data.ipAddress ? `<p style="font-size: 12px; color: #6b7280; margin-top: 10px;">Request made from IP: ${data.ipAddress}</p>` : ''}
+                ${
+                  data.ipAddress
+                    ? `<p style="font-size: 12px; color: #6b7280; margin-top: 10px;">Request made from IP: ${data.ipAddress}</p>`
+                    : ""
+                }
             </div>
             
             <div class="cta-section">
@@ -612,7 +618,9 @@ If you need assistance, please contact our support team.
                     <strong>Ready to reset your password?</strong><br>
                     Click the button below to create a new password for your account.
                 </p>
-                <a href="${data.resetLink}" class="cta-button">Reset My Password</a>
+                <a href="${
+                  data.resetLink
+                }" class="cta-button">Reset My Password</a>
             </div>
             
             <div class="expiry-warning">
@@ -671,7 +679,9 @@ PASSWORD RESET REQUEST - ${this.organizationName.toUpperCase()}
 
 Hello ${data.name},
 
-We received a request to reset the password for your ${this.organizationName} account (${data.email}).
+We received a request to reset the password for your ${
+      this.organizationName
+    } account (${data.email}).
 
 RESET YOUR PASSWORD:
 If you made this request, please visit the following link to reset your password:
@@ -681,7 +691,7 @@ IMPORTANT INFORMATION:
 - This reset link expires on ${expiryDate} at ${expiryTime}
 - This link can only be used once
 - If you didn't request this reset, you can safely ignore this email
-${data.ipAddress ? `- Request made from IP: ${data.ipAddress}` : ''}
+${data.ipAddress ? `- Request made from IP: ${data.ipAddress}` : ""}
 
 SECURITY TIPS:
 - Choose a strong, unique password

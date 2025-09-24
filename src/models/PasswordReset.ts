@@ -52,13 +52,16 @@ passwordResetSchema.index({ email: 1, isUsed: 1, expiresAt: 1 });
 // Clean up used tokens after 24 hours
 passwordResetSchema.index(
   { updatedAt: 1 },
-  { 
+  {
     expireAfterSeconds: 24 * 60 * 60, // 24 hours
-    partialFilterExpression: { isUsed: true }
+    partialFilterExpression: { isUsed: true },
   }
 );
 
-const PasswordReset = mongoose.model<IPasswordReset>("PasswordReset", passwordResetSchema);
+const PasswordReset = mongoose.model<IPasswordReset>(
+  "PasswordReset",
+  passwordResetSchema
+);
 
 export default PasswordReset;
 export type { IPasswordReset };

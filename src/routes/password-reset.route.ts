@@ -63,7 +63,10 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
 
       // Generate secure token
       const resetToken = crypto.randomBytes(32).toString("hex");
-      const tokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+      const tokenHash = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
 
       // Create password reset record
       const passwordReset = new PasswordReset({
@@ -76,11 +79,14 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
       await passwordReset.save();
 
       // Generate reset link
-      const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${resetToken}`;
+      const resetLink = `${
+        process.env.FRONTEND_URL || "http://localhost:5173"
+      }/reset-password?token=${resetToken}`;
 
       // Get user's IP and user agent for security info
-      const ipAddress = req.headers['x-forwarded-for'] as string || req.socket.remoteAddress;
-      const userAgent = req.headers['user-agent'];
+      const ipAddress =
+        (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress;
+      const userAgent = req.headers["user-agent"];
 
       // Send password reset email
       try {
@@ -110,9 +116,9 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
 
     // Always return the same response to prevent email enumeration
     res.json({
-      message: "If an account with that email exists, you will receive a password reset link shortly",
+      message:
+        "If an account with that email exists, you will receive a password reset link shortly",
     });
-
   } catch (error) {
     console.error("Password reset request error:", error);
     res.status(500).json({
@@ -188,7 +194,6 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       message: "Password has been reset successfully",
       success: true,
     });
-
   } catch (error) {
     console.error("Password reset error:", error);
     res.status(500).json({
@@ -203,55 +208,57 @@ router.post("/reset-password", async (req: Request, res: Response) => {
  * @desc    Verify if reset token is valid
  * @access  Public
  */
-router.get("/verify-reset-token/:token", async (req: Request, res: Response) => {
-  try {
-    const { token } = req.params;
+router.get(
+  "/verify-reset-token/:token",
+  async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params;
 
-    if (!token) {
-      return res.status(400).json({
-        error: "Token is required",
+      if (!token) {
+        return res.status(400).json({
+          error: "Token is required",
+        });
+      }
+
+      // Hash the token to match stored value
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+      // Find valid reset token
+      const passwordReset = await PasswordReset.findOne({
+        token: tokenHash,
+        isUsed: false,
+        expiresAt: { $gt: new Date() },
+      }).populate("userId", "email name");
+
+      if (!passwordReset) {
+        return res.status(400).json({
+          error: "Invalid or expired reset token",
+          valid: false,
+        });
+      }
+
+      // Check if user still exists and is active
+      const user = await User.findById(passwordReset.userId);
+      if (!user || !user.isActive) {
+        return res.status(400).json({
+          error: "User account not found or inactive",
+          valid: false,
+        });
+      }
+
+      res.json({
+        valid: true,
+        email: passwordReset.email,
+        expiresAt: passwordReset.expiresAt,
       });
-    }
-
-    // Hash the token to match stored value
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-
-    // Find valid reset token
-    const passwordReset = await PasswordReset.findOne({
-      token: tokenHash,
-      isUsed: false,
-      expiresAt: { $gt: new Date() },
-    }).populate('userId', 'email name');
-
-    if (!passwordReset) {
-      return res.status(400).json({
-        error: "Invalid or expired reset token",
+    } catch (error) {
+      console.error("Token verification error:", error);
+      res.status(500).json({
+        error: "Internal server error",
         valid: false,
       });
     }
-
-    // Check if user still exists and is active
-    const user = await User.findById(passwordReset.userId);
-    if (!user || !user.isActive) {
-      return res.status(400).json({
-        error: "User account not found or inactive",
-        valid: false,
-      });
-    }
-
-    res.json({
-      valid: true,
-      email: passwordReset.email,
-      expiresAt: passwordReset.expiresAt,
-    });
-
-  } catch (error) {
-    console.error("Token verification error:", error);
-    res.status(500).json({
-      error: "Internal server error",
-      valid: false,
-    });
   }
-});
+);
 
 export default router;

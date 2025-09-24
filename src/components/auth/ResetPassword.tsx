@@ -21,7 +21,9 @@ const ResetPassword: React.FC = () => {
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
-        setTokenError("Invalid reset link. Please request a new password reset.");
+        setTokenError(
+          "Invalid reset link. Please request a new password reset."
+        );
         setTokenValidating(false);
         return;
       }
@@ -36,7 +38,9 @@ const ResetPassword: React.FC = () => {
           setTokenError(result.error || "Invalid or expired reset link");
         }
       } catch (err) {
-        setTokenError("Network error. Please check your connection and try again.");
+        setTokenError(
+          "Network error. Please check your connection and try again."
+        );
       } finally {
         setTokenValidating(false);
       }
@@ -47,19 +51,19 @@ const ResetPassword: React.FC = () => {
 
   const validatePassword = (pwd: string): string[] => {
     const errors: string[] = [];
-    
+
     if (pwd.length < 8) {
       errors.push("Password must be at least 8 characters long");
     }
-    
+
     if (!/[A-Z]/.test(pwd)) {
       errors.push("Password must contain at least one uppercase letter");
     }
-    
+
     if (!/[a-z]/.test(pwd)) {
       errors.push("Password must contain at least one lowercase letter");
     }
-    
+
     if (!/\d/.test(pwd)) {
       errors.push("Password must contain at least one number");
     }
@@ -105,10 +109,11 @@ const ResetPassword: React.FC = () => {
         setSuccess(true);
         // Redirect to sign in after a delay
         setTimeout(() => {
-          navigate("/signin", { 
-            state: { 
-              message: "Password reset successful! Please sign in with your new password." 
-            }
+          navigate("/signin", {
+            state: {
+              message:
+                "Password reset successful! Please sign in with your new password.",
+            },
           });
         }, 3000);
       } else {
@@ -128,11 +133,29 @@ const ResetPassword: React.FC = () => {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="text-center">
-              <svg className="animate-spin h-8 w-8 text-indigo-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin h-8 w-8 text-indigo-600 mx-auto"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
-              <p className="mt-4 text-sm text-gray-600">Validating reset link...</p>
+              <p className="mt-4 text-sm text-gray-600">
+                Validating reset link...
+              </p>
             </div>
           </div>
         </div>
@@ -156,8 +179,16 @@ const ResetPassword: React.FC = () => {
               <div className="bg-red-50 border border-red-200 rounded-md p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                   <div className="ml-3">
@@ -178,9 +209,9 @@ const ResetPassword: React.FC = () => {
                 >
                   Request new reset link
                 </Link>
-                
-                <Link 
-                  to="/signin" 
+
+                <Link
+                  to="/signin"
                   className="block w-full text-center py-2 px-4 text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
                 >
                   Back to sign in
@@ -207,26 +238,44 @@ const ResetPassword: React.FC = () => {
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="text-center space-y-4">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              
+
               <div>
-                <h3 className="text-lg font-medium text-gray-900">Password updated successfully!</h3>
+                <h3 className="text-lg font-medium text-gray-900">
+                  Password updated successfully!
+                </h3>
                 <div className="mt-2 text-sm text-gray-600">
-                  <p>Your password has been reset. You can now sign in with your new password.</p>
+                  <p>
+                    Your password has been reset. You can now sign in with your
+                    new password.
+                  </p>
                 </div>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <div className="text-sm text-blue-700 text-center">
-                  <p>You will be redirected to the sign-in page in a few seconds...</p>
+                  <p>
+                    You will be redirected to the sign-in page in a few
+                    seconds...
+                  </p>
                 </div>
               </div>
 
-              <Link 
-                to="/signin" 
+              <Link
+                to="/signin"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Go to sign in now
@@ -246,7 +295,8 @@ const ResetPassword: React.FC = () => {
           🔒 Set New Password
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Create a strong password for your account: <span className="font-medium">{email}</span>
+          Create a strong password for your account:{" "}
+          <span className="font-medium">{email}</span>
         </p>
       </div>
 
@@ -254,7 +304,10 @@ const ResetPassword: React.FC = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 New password
               </label>
               <div className="mt-1">
@@ -274,7 +327,10 @@ const ResetPassword: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm new password
               </label>
               <div className="mt-1">
@@ -301,10 +357,14 @@ const ResetPassword: React.FC = () => {
                   <li className={password.length >= 8 ? "text-green-600" : ""}>
                     • At least 8 characters long
                   </li>
-                  <li className={/[A-Z]/.test(password) ? "text-green-600" : ""}>
+                  <li
+                    className={/[A-Z]/.test(password) ? "text-green-600" : ""}
+                  >
                     • One uppercase letter (A-Z)
                   </li>
-                  <li className={/[a-z]/.test(password) ? "text-green-600" : ""}>
+                  <li
+                    className={/[a-z]/.test(password) ? "text-green-600" : ""}
+                  >
                     • One lowercase letter (a-z)
                   </li>
                   <li className={/\d/.test(password) ? "text-green-600" : ""}>
@@ -319,14 +379,20 @@ const ResetPassword: React.FC = () => {
               <div className="bg-red-50 border border-red-200 rounded-md p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">
-                      Error
-                    </h3>
+                    <h3 className="text-sm font-medium text-red-800">Error</h3>
                     <div className="mt-2 text-sm text-red-700">
                       <p>{error}</p>
                     </div>
@@ -343,9 +409,25 @@ const ResetPassword: React.FC = () => {
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Updating password...
                   </>
@@ -356,8 +438,8 @@ const ResetPassword: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <Link 
-                to="/signin" 
+              <Link
+                to="/signin"
                 className="text-sm text-indigo-600 hover:text-indigo-500 transition-colors"
               >
                 ← Back to sign in
