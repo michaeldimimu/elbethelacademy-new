@@ -39,17 +39,17 @@ const InvitationManagement: React.FC = () => {
   const loadEmailStatus = async () => {
     try {
       const response = await fetch(`/api/invitations/email-status`, {
-        credentials: 'include'
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const status = await response.json();
         setEmailServiceStatus(status);
       } else {
-        console.error('Failed to load email status:', response.statusText);
+        console.error("Failed to load email status:", response.statusText);
       }
     } catch (error) {
-      console.error('Error loading email status:', error);
+      console.error("Error loading email status:", error);
     }
   };
 
@@ -96,30 +96,30 @@ const InvitationManagement: React.FC = () => {
   // Send test email
   const handleSendTestEmail = async () => {
     if (!testEmail.trim()) return;
-    
+
     setTestEmailLoading(true);
     try {
-      const response = await fetch('/api/invitations/test-email', {
-        method: 'POST',
+      const response = await fetch("/api/invitations/test-email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ email: testEmail }),
       });
 
       if (response.ok) {
-        setSuccessMessage('Test email sent successfully!');
-        setTestEmail('');
+        setSuccessMessage("Test email sent successfully!");
+        setTestEmail("");
         setShowTestEmailForm(false);
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to send test email');
+        setError(errorData.message || "Failed to send test email");
         setTimeout(() => setError(null), 3000);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to send test email');
+      setError(err.message || "Failed to send test email");
       setTimeout(() => setError(null), 3000);
     } finally {
       setTestEmailLoading(false);
@@ -136,28 +136,28 @@ const InvitationManagement: React.FC = () => {
     // Client-side validation
     const email = inviteForm.email.trim();
     if (!email) {
-      setError('Email address is required.');
+      setError("Email address is required.");
       setInviteLoading(false);
       return;
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
+      setError("Please enter a valid email address.");
       setInviteLoading(false);
       return;
     }
 
     if (!inviteForm.role) {
-      setError('Please select a role for the invitation.');
+      setError("Please select a role for the invitation.");
       setInviteLoading(false);
       return;
     }
 
     try {
-      await invitationService.createInvitation({ 
-        email: email, 
-        role: inviteForm.role 
+      await invitationService.createInvitation({
+        email: email,
+        role: inviteForm.role,
       });
       setSuccessMessage(
         `Invitation sent successfully to ${email}! They will receive an email with a registration link.`
@@ -255,17 +255,22 @@ const InvitationManagement: React.FC = () => {
 
       {/* Email Service Status */}
       {emailServiceStatus && (
-        <div className={`p-4 rounded-lg border ${
-          emailServiceStatus.configured 
-            ? 'bg-green-50 border-green-200' 
-            : 'bg-yellow-50 border-yellow-200'
-        }`}>
+        <div
+          className={`p-4 rounded-lg border ${
+            emailServiceStatus.configured
+              ? "bg-green-50 border-green-200"
+              : "bg-yellow-50 border-yellow-200"
+          }`}
+        >
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${
-              emailServiceStatus.configured ? 'bg-green-500' : 'bg-yellow-500'
-            }`}></div>
+            <div
+              className={`w-3 h-3 rounded-full ${
+                emailServiceStatus.configured ? "bg-green-500" : "bg-yellow-500"
+              }`}
+            ></div>
             <span className="font-medium">
-              Email Service: {emailServiceStatus.configured ? 'Configured' : 'Not Configured'}
+              Email Service:{" "}
+              {emailServiceStatus.configured ? "Configured" : "Not Configured"}
             </span>
             {emailServiceStatus.provider && (
               <span className="text-sm text-gray-600">
@@ -284,8 +289,16 @@ const InvitationManagement: React.FC = () => {
       {/* Success/Error Messages */}
       {successMessage && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center">
-          <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <svg
+            className="w-5 h-5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
           </svg>
           <span className="font-medium">{successMessage}</span>
         </div>
@@ -293,8 +306,16 @@ const InvitationManagement: React.FC = () => {
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-start">
-          <svg className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <svg
+            className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
           </svg>
           <div>
             <p className="font-medium">Unable to send invitation</p>
@@ -439,7 +460,7 @@ const InvitationManagement: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setShowTestEmailForm(false);
-                    setTestEmail('');
+                    setTestEmail("");
                   }}
                   className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                 >
@@ -509,14 +530,14 @@ const InvitationManagement: React.FC = () => {
                   Select the role this user will have in the system
                 </p>
               </div>
-              
+
               {/* Show current error in modal if any */}
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
                   {error}
                 </div>
               )}
-              
+
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"

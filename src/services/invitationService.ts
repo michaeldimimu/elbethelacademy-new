@@ -53,34 +53,51 @@ class InvitationService {
       // Handle specific error cases with user-friendly messages
       switch (response.status) {
         case 400:
-          if (data.error?.includes('user with this email already exists')) {
-            throw new Error(`A user with email "${request.email}" is already registered in the system.`);
-          } else if (data.error?.includes('invitation for this email and role already exists')) {
-            throw new Error(`An invitation has already been sent to "${request.email}" for the ${request.role} role.`);
-          } else if (data.error?.includes('valid email address')) {
+          if (data.error?.includes("user with this email already exists")) {
+            throw new Error(
+              `A user with email "${request.email}" is already registered in the system.`
+            );
+          } else if (
+            data.error?.includes(
+              "invitation for this email and role already exists"
+            )
+          ) {
+            throw new Error(
+              `An invitation has already been sent to "${request.email}" for the ${request.role} role.`
+            );
+          } else if (data.error?.includes("valid email address")) {
             throw new Error(`Please provide a valid email address.`);
-          } else if (data.error?.includes('Email and role are required')) {
-            throw new Error('Both email and role are required fields.');
-          } else if (data.error?.includes('Invalid role')) {
-            throw new Error(`"${request.role}" is not a valid role. Please select a valid role.`);
+          } else if (data.error?.includes("Email and role are required")) {
+            throw new Error("Both email and role are required fields.");
+          } else if (data.error?.includes("Invalid role")) {
+            throw new Error(
+              `"${request.role}" is not a valid role. Please select a valid role.`
+            );
           }
           break;
         case 401:
-          throw new Error('You need to be logged in to send invitations.');
+          throw new Error("You need to be logged in to send invitations.");
         case 403:
           if (data.error?.includes("don't have permission")) {
-            const availableRoles = data.invitableRoles?.join(', ') || 'your permitted roles';
-            throw new Error(`You don't have permission to invite users with the "${request.role}" role. You can only invite: ${availableRoles}.`);
+            const availableRoles =
+              data.invitableRoles?.join(", ") || "your permitted roles";
+            throw new Error(
+              `You don't have permission to invite users with the "${request.role}" role. You can only invite: ${availableRoles}.`
+            );
           }
-          throw new Error('You don\'t have permission to send invitations.');
+          throw new Error("You don't have permission to send invitations.");
         case 500:
-          throw new Error('Server error occurred while sending the invitation. Please try again.');
+          throw new Error(
+            "Server error occurred while sending the invitation. Please try again."
+          );
         default:
           break;
       }
-      
+
       // Fallback to the original error message
-      throw new Error(data.error || data.message || "Failed to create invitation");
+      throw new Error(
+        data.error || data.message || "Failed to create invitation"
+      );
     }
 
     return data;
