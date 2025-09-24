@@ -170,3 +170,38 @@ export const canModifyUser = (
 
   return false; // Other roles can't modify users
 };
+
+/**
+ * Helper function to check if current user can invite users with specific role
+ * Super admins can invite anyone, admins can invite users below admin level
+ */
+export const canInviteRole = (
+  currentUserRole: UserRole,
+  targetRole: UserRole
+): boolean => {
+  if (currentUserRole === "super_admin") {
+    return true; // Super admin can invite anyone
+  }
+
+  if (currentUserRole === "admin") {
+    // Admin can invite moderator, teacher, student, guest - but not admin or super_admin
+    return !["super_admin", "admin"].includes(targetRole);
+  }
+
+  return false; // Other roles can't invite users
+};
+
+/**
+ * Get list of roles that current user can invite
+ */
+export const getInvitableRoles = (currentUserRole: UserRole): UserRole[] => {
+  if (currentUserRole === "super_admin") {
+    return Object.values(UserRole) as UserRole[];
+  }
+
+  if (currentUserRole === "admin") {
+    return ["moderator", "teacher", "student", "guest"];
+  }
+
+  return []; // Other roles can't invite users
+};

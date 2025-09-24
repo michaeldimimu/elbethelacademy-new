@@ -12,6 +12,7 @@ import {
   requireSuperAdmin,
 } from "./src/middleware/auth.js";
 import { Permission } from "./src/types/roles.js";
+import invitationRoutes from "./src/routes/invitation.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,6 +48,9 @@ database.connect().catch((error) => {
   );
   // Don't exit the process, let the server run for frontend development
 });
+
+// API routes
+app.use("/api/invitations", invitationRoutes);
 
 // Auth routes with MongoDB
 app.post("/auth/signin/credentials", async (req, res) => {

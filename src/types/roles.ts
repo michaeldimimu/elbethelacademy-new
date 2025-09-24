@@ -18,6 +18,7 @@ export const Permission = {
   UPDATE_USER: "update_user",
   DELETE_USER: "delete_user",
   MANAGE_ROLES: "manage_roles",
+  INVITE_USERS: "invite_users",
 
   // Content management
   CREATE_COURSE: "create_course",
@@ -55,6 +56,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.UPDATE_USER,
     Permission.DELETE_USER,
     Permission.MANAGE_ROLES,
+    Permission.INVITE_USERS,
     Permission.CREATE_COURSE,
     Permission.READ_COURSE,
     Permission.UPDATE_COURSE,
